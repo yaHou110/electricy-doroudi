@@ -1,8 +1,8 @@
-# TradeFlow
+# KasbFlow
 
-TradeFlow is a Persian-first business management platform for distribution and retail businesses — inventory, purchasing/receiving, sales, customers, pricing, and staff operations in one modular system. Its initial focus is on the operational workflows that matter most to a distributor: receiving goods, maintaining reliable stock history, recording sales, managing customers and products, and giving staff and managers a clear operational dashboard.
+KasbFlow is a Persian-first business management platform for distribution and retail businesses — inventory, purchasing/receiving, sales, customers, pricing, and staff operations in one modular system. Its initial focus is on the operational workflows that matter most to a distributor: receiving goods, maintaining reliable stock history, recording sales, managing customers and products, and giving staff and managers a clear operational dashboard.
 
-The first deployment is for **Droodi (درودی)**, an electrical equipment distributor; the electrical domain shapes the seed data and initial taxonomy, but no business logic depends on it.
+The first deployment is for **Doroudi (درودی)**, an electrical equipment distributor; the electrical domain shapes the seed data and initial taxonomy, but no business logic depends on it.
 
 The platform is intentionally being developed as a modular business product rather than as a full ERP in the first release. Accounting, advanced procurement, complex CRM, and other broader ERP capabilities are outside the scope of the initial milestone and may be added later when validated by real business requirements.
 
@@ -14,7 +14,7 @@ The platform is intentionally being developed as a modular business product rath
 
 ## Product direction
 
-TradeFlow is the product; **Droodi is the first customer deployment**, not the product's identity. The same codebase should serve other distributors (auto parts, hardware, industrial supply) later.
+KasbFlow is the product; **Doroudi is the first customer deployment**, not the product's identity. The same codebase should serve other distributors (auto parts, hardware, industrial supply) later.
 
 Customer-specific branding, labels, configuration, and operational settings belong in configuration rather than hard-coded business logic. Business behavior that is broadly useful to distributors should remain part of the shared product.
 

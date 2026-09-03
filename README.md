@@ -1,4 +1,4 @@
-# TradeFlow
+# KasbFlow
 
 Persian-first inventory and sales foundation for electrical distributors.
 

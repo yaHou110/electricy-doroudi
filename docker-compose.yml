@@ -1,22 +1,22 @@
-name: tradeflow
+name: kasbflow
 
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: tradeflow
+      POSTGRES_DB: kasbflow
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d tradeflow"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d kasbflow"]
       interval: 5s
       timeout: 5s
       retries: 10
     volumes:
-      - tradeflow-postgres:/var/lib/postgresql/data
+      - kasbflow-postgres:/var/lib/postgresql/data
 
 volumes:
-  tradeflow-postgres:
+  kasbflow-postgres:

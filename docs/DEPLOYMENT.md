@@ -1,6 +1,6 @@
 # Deployment & Operations
 
-Practical runbook for running TradeFlow in development and on a single VPS. Everything here reflects the actual scripts in `package.json` and the compose file at the repo root.
+Practical runbook for running KasbFlow in development and on a single VPS. Everything here reflects the actual scripts in `package.json` and the compose file at the repo root.
 
 ## Topology (current)
 
@@ -14,7 +14,7 @@ One machine hosts both the app process and the database container. There is no r
 
 | Variable | Purpose | Notes |
 | --- | --- | --- |
-| `DATABASE_URL` | Prisma connection string | `postgresql://postgres:postgres@localhost:5432/tradeflow?schema=public` in dev; use the VPS-internal address in production. |
+| `DATABASE_URL` | Prisma connection string | `postgresql://postgres:postgres@localhost:5432/kasbflow?schema=public` in dev; use the VPS-internal address in production. |
 | `AUTH_SECRET` | Auth.js JWT signing key | Generate with `openssl rand -base64 32`. **Rotating it invalidates all sessions.** |
 | `NEXT_PUBLIC_APP_NAME` | Display name in the UI | Cosmetic. |
 
@@ -22,7 +22,7 @@ One machine hosts both the app process and the database container. There is no r
 
 ```bash
 cp .env.example .env          # then edit AUTH_SECRET
-docker compose up -d          # PostgreSQL 16 + healthcheck, volume tradeflow-postgres
+docker compose up -d          # PostgreSQL 16 + healthcheck, volume kasbflow-postgres
 npm install
 npm run db:generate           # prisma generate
 npx prisma migrate deploy     # apply committed migrations (or migrate dev while iterating)
@@ -58,7 +58,7 @@ Database: point-in-time restore from backups — there is no automated down-migr
 
 ## Data management
 
-* **Backups**: `docker exec <postgres container> pg_dump -U postgres -Fc tradeflow > backup-$(date +%F).dump`. Restore with `pg_restore -U postgres -d tradeflow --clean backup.dump`. Schedule daily dumps off-box; none are automated yet.
+* **Backups**: `docker exec <postgres container> pg_dump -U postgres -Fc kasbflow > backup-$(date +%F).dump`. Restore with `pg_restore -U postgres -d kasbflow --clean backup.dump`. Schedule daily dumps off-box; none are automated yet.
 * **Migrations**: `prisma/migrations/` is the single source of truth. `migrate deploy` in production, `migrate dev` only in development.
 * **Seed**: `npm run db:seed` is dev/demo only — it creates known staff accounts and must never run against production.
 
@@ -66,7 +66,7 @@ Database: point-in-time restore from backups — there is no automated down-migr
 
 * **Health endpoint**: `GET /api/health` checks database connectivity (200/503) — wire it to an uptime monitor or `docker healthcheck`.
 * **Logs**: the app writes to stdout/stderr; the process manager owns persistence. Route handlers return structured error codes (`docs/API.md`) but no request logging middleware exists yet.
-* **Watch for**: `503 SERIALIZATION_RETRY_EXHAUSTED` responses (sustained concurrency pressure), slow `/api/dashboard` (full-table derivation), and disk growth of the `tradeflow-postgres` volume.
+* **Watch for**: `503 SERIALIZATION_RETRY_EXHAUSTED` responses (sustained concurrency pressure), slow `/api/dashboard` (full-table derivation), and disk growth of the `kasbflow-postgres` volume.
 
 ## Known gaps (honest list)
 

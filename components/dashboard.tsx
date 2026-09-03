@@ -146,7 +146,7 @@ export default function Dashboard() {
       <aside className="sidebar">
         <div className="brand">
           <div className="brand-mark">ت</div>
-          <div><strong>TradeFlow</strong><span>مدیریت هوشمند کسب‌وکار</span></div>
+          <div><strong>KasbFlow</strong><span>مدیریت هوشمند کسب‌وکار</span></div>
         </div>
         <div>
           <div className="nav-label">منوی اصلی</div>

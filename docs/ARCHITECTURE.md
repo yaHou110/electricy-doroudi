@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the architectural boundaries and major technical decisions for the TradeFlow platform.
+This document defines the architectural boundaries and major technical decisions for the KasbFlow platform.
 
 ## Decision log
 
@@ -25,7 +25,7 @@ This document defines the architectural boundaries and major technical decisions
 | 015 | Single tenant for milestone 1 |
 | 016 | Persian-first interface |
 | 017 | Simple operational model for the first release |
-| 020 | Product named TradeFlow; Droodi is a customer, not the product identity |
+| 020 | Product named KasbFlow (کسب‌فلو) — verified free of software/trademark collisions (TradeFlow rejected: TRADEFLOW® is Expeditors' trade-management suite; Mojoud rejected: existing delivery app). Doroudi (درودی) is the customer, never the product identity |
 | 021 | Money serialized as lossless decimal strings; BigInt never crosses a JSON boundary |
 | 018 | Database migration deployment |
 
