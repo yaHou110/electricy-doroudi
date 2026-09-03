@@ -5,10 +5,10 @@ Practical runbook for running Electricy Doroudi in development and on a single V
 ## Topology (current)
 
 ```text
-[Browser] → [Next.js app (node process)] → [PostgreSQL 16 (Docker)]
+[Browser] → [Next.js app (node process, or Docker container)] → [PostgreSQL 16 (Docker)]
 ```
 
-One machine hosts both the app process and the database container. There is no reverse proxy, TLS termination, or process supervisor wired up yet — see "Known gaps".
+One machine hosts the app and the database container. There is no reverse proxy/TLS wired up yet — front the container with nginx/Caddy on the VPS (see "Known gaps").
 
 ## Environment variables (`.env`, never committed)
 
@@ -17,6 +17,7 @@ One machine hosts both the app process and the database container. There is no r
 | `DATABASE_URL` | Prisma connection string | `postgresql://postgres:postgres@localhost:5432/electricy-doroudi?schema=public` in dev; use the VPS-internal address in production. |
 | `AUTH_SECRET` | Auth.js JWT signing key | Generate with `openssl rand -base64 32`. **Rotating it invalidates all sessions.** |
 | `NEXT_PUBLIC_APP_NAME` | Display name in the UI | Cosmetic. |
+| `SEED_PASSWORD` | Password for `npm run db:seed` accounts | Optional in dev (`change-me-now` fallback); **set explicitly for any real environment**. |
 
 ## Development workflow
 
@@ -56,6 +57,19 @@ npx prisma migrate deploy     # before starting the new build
 App: redeploy the previous commit (migrations are designed to be forward-only; check `docs/DATA_MODEL.md` for constraints a rollback could violate before reverting a schema change).
 Database: point-in-time restore from backups — there is no automated down-migration path.
 
+## Container workflow (recommended)
+
+The production image is a multi-stage build of the standalone Next.js output, running as a non-root user:
+
+```bash
+docker build -t electricy-doroudi:latest .
+docker compose up -d            # app + postgres together (compose profile includes the app service)
+```
+
+Compose passes `DATABASE_URL` (service name `postgres`) and requires `AUTH_SECRET` from `.env`. Migrations are applied from the host before first start (`npx prisma migrate deploy`); an init wrapper can automate this later.
+
+**Trust note:** Auth.js runs with `trustHost: true` — the deployment MUST sit behind a trusted proxy/TLS terminator that sets `X-Forwarded-*` correctly, or be exposed only on a trusted network.
+
 ## Data management
 
 * **Backups**: `docker exec <postgres container> pg_dump -U postgres -Fc electricy-doroudi > backup-$(date +%F).dump`. Restore with `pg_restore -U postgres -d electricy-doroudi --clean backup.dump`. Schedule daily dumps off-box; none are automated yet.
@@ -70,7 +84,7 @@ Database: point-in-time restore from backups — there is no automated down-migr
 
 ## Known gaps (honest list)
 
-* No production Dockerfile or app container — the app runs on the host, the database in Compose.
-* No reverse proxy/TLS; assume a fronting nginx/Caddy on the VPS.
+* No reverse proxy/TLS; the container must sit behind nginx/Caddy on the VPS (`trustHost: true` makes correct proxy headers mandatory).
+* Container startup does not apply migrations automatically yet; run `npx prisma migrate deploy` from the host (or add an entrypoint wrapper).
 * No automated backups, no request logging, no metrics/alerting.
 * Single-node only; no horizontal scaling story (the ledger design tolerates it later).

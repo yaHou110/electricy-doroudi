@@ -5,7 +5,9 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash("change-me-now", 12);
+  // Dev/demo convenience default only; production must set SEED_PASSWORD explicitly.
+  const seedPassword = process.env.SEED_PASSWORD ?? "change-me-now";
+  const passwordHash = await bcrypt.hash(seedPassword, 12);
   const manager = await prisma.user.upsert({
     where: { email: "manager@doroudi.local" },
     update: {},

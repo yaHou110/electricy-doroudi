@@ -89,7 +89,8 @@ Secondary indexes exist for the query paths actually used: `Product(name, brandI
 
 ## Known gaps (honest list)
 
-* `StockMovement.warehouseId` is nullable and current write paths do not set it. The model is warehouse-ready; wiring receipts/sales to the default warehouse is pending. **Stock is therefore system-wide, and no UI or API may present it as warehouse-specific** until write paths populate the column.
+* `StockMovement.warehouseId` is **set on every movement** by the receiving and sales services (the default warehouse, `NO_DEFAULT_WAREHOUSE` → HTTP 503 if absent). Stock is still derived system-wide; per-warehouse reads are future work.
 * Ledger immutability is by application convention only (no DB trigger/rule).
+* Per-warehouse stock views and transfers are future work; the ledger now records the warehouse on every movement.
 * `SaleStatus.VOIDED` exists but no void/compensation workflow is implemented; corrections are not yet possible through the API.
 * `User` has no activation/lock flag yet; "manage users" is roadmap, not implementation.

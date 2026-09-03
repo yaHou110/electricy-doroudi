@@ -27,6 +27,8 @@ This document defines the architectural boundaries and major technical decisions
 | 017 | Simple operational model for the first release |
 | 020 | Product named Electricy Doroudi (الکتریکی درودی) — the business brand chosen by the owner. Earlier working titles were rejected during the naming review. Doroudi (درودی) appears only where the customer is actually meant |
 | 021 | Money serialized as lossless decimal strings; BigInt never crosses a JSON boundary |
+| 022 | Business logic lives in a service layer (`lib/services`); routes are thin HTTP adapters |
+| 023 | Every stock movement is stamped with the default warehouse; stock reads remain system-wide for now |
 | 018 | Database migration deployment |
 
 Each decision below records its rationale and consequences. If the decision log grows unwieldy, records will be split into `docs/adr/` files — not before.

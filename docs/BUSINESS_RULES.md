@@ -3,7 +3,7 @@
 ## Inventory
 
 * Every stock change creates an immutable stock movement.
-* A stock movement records direction, quantity, reason, actor, timestamp, warehouse, and source operation when applicable.
+* A stock movement records direction, quantity, reason, actor, timestamp, warehouse, and source operation when applicable. Write paths stamp the default warehouse and refuse to operate (`NO_DEFAULT_WAREHOUSE`) if none exists.
 * Current stock is derived from stock movements; a mutable stock quantity is not the authoritative source of truth.
 * Stock is tracked per product and warehouse. The system must not assume that a product has only one physical stock location.
 * Quantities must be positive at the input boundary. Direction determines whether stock increases or decreases.

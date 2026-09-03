@@ -4,6 +4,7 @@ const authConfig = {
   providers: [],
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
+  trustHost: true,
   callbacks: {
     authorized({ auth, request }) {
       const pathname = request.nextUrl.pathname;

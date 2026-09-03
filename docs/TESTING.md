@@ -26,7 +26,9 @@ Unit tests (`*.test.ts` next to the code they cover, run by `npm test`):
 Verification scripts (not vitest, executed against the real database):
 
 * `scripts/db-smoke.ts` — round-trip through the real schema: product, receipt with lines, `RECEIPT` movement, warehouse, actor. Rerunnable (cleans its own fixture first).
+* `scripts/service-check.ts` — service-layer integration checks against the real database, rerunnable: receiving (create/replay/conflict, warehouse stamping, exactly-once ledger effects), sales (stock derivation, insufficient-stock rejection). Run with `npx tsx scripts/service-check.ts`.
 * Live API checks (login, 401 without session, 409 on duplicate receipt) are performed manually against `npm run dev` per the runbook in `DEPLOYMENT.md`.
+* Container check: `docker build` + run against the compose database; `/api/health` must return ok with clean auth logs (this check caught a real `UntrustedHost` production blocker).
 
 ## Policy: what must always be tested when changed
 
@@ -37,6 +39,6 @@ Verification scripts (not vitest, executed against the real database):
 
 ## Planned (when justified — see ROADMAP)
 
-* **Integration tests** against a disposable PostgreSQL (receipt → sale → derived stock; duplicate number; insufficient stock; rollback leaves no partial writes). Trigger: before the first multi-user deployment or when `scripts/db-smoke.ts` stops being sufficient.
+* **vitest integration suites** promoted from `scripts/service-check.ts` against a disposable PostgreSQL (receipt → sale → derived stock; duplicate number; insufficient stock; rollback leaves no partial writes). Trigger: before the first multi-user deployment.
 * **Concurrency tests** proving two parallel sales cannot both consume the last units, and that `P2034` retries converge. Trigger: same as above.
 * **Authorization tests** enumerating the RBAC matrix (`SECURITY.md`) per endpoint. Trigger: any new endpoint or role change.

@@ -47,7 +47,7 @@ Roles: `MANAGER`, `SALES`. Body per `customerInputSchema`. `201` · `409 CUSTOME
 
 ### `POST /api/receipts`
 
-Roles: `MANAGER`, `WAREHOUSE`.
+Roles: `MANAGER`, `WAREHOUSE`. Movements are stamped with the default warehouse; missing default warehouse → `503 NO_DEFAULT_WAREHOUSE`.
 
 Body: `{ receiptNo, supplierId?, notes?, lines: [{ productId, quantity, unitCostRial }] }` — `quantity` positive integer ≤ 2³¹−1; each product may appear at most once.
 
@@ -67,7 +67,7 @@ Responses:
 
 ### `POST /api/sales`
 
-Roles: `MANAGER`, `SALES`. Same structure as receipts, plus:
+Roles: `MANAGER`, `SALES`. Same warehouse stamping as receipts, plus:
 
 * Stock check: current stock is derived from the ledger inside the transaction; any line pushing stock below zero → `409 INSUFFICIENT_STOCK`.
 * `totalRial` is computed server-side as `Σ quantity × unitPriceRial` in `BigInt` — the client never sends the total.
@@ -97,4 +97,4 @@ This is replay-by-detection, not request-deduplication storage: Milestone 1 keep
 * No pagination, filtering, or sorting parameters — fine at Milestone 1 scale, revisit with real data volume.
 * No `PATCH`/`DELETE` for any resource yet; corrections to posted documents are roadmap, not implementation.
 * No request-level rate limiting; see `SECURITY.md`.
-* Stock is system-wide: `StockMovement.warehouseId` is not set by any write path yet.
+* Stock is derived system-wide; per-warehouse reads/transfer flows are future work.
