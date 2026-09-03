@@ -25,7 +25,7 @@ This document defines the architectural boundaries and major technical decisions
 | 015 | Single tenant for milestone 1 |
 | 016 | Persian-first interface |
 | 017 | Simple operational model for the first release |
-| 020 | Product named Electricy Doroudi (الکتریکی درودی) — the owner's brand for the customer's business; earlier generic names (Droudian Platform, TradeFlow, KasbFlow) were all rejected: TradeFlow collides with Expeditors' TRADEFLOW®, KasbFlow mixed languages, and customer-name-based names tied the product identity to one client. Customer references use Doroudi (درودی) only where the customer is actually meant |
+| 020 | Product named Electricy Doroudi (الکتریکی درودی) — the business brand chosen by the owner. Earlier working titles were rejected during the naming review. Doroudi (درودی) appears only where the customer is actually meant |
 | 021 | Money serialized as lossless decimal strings; BigInt never crosses a JSON boundary |
 | 018 | Database migration deployment |
 

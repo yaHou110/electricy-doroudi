@@ -14,7 +14,7 @@ The platform is intentionally being developed as a modular business product rath
 
 ## Product direction
 
-The platform is named after the business it serves: **Electricy Doroudi (الکتریکی درودی)**. Generic product naming experiments (Droudian Platform, TradeFlow, KasbFlow) were considered and rejected — the owner chose the business's own brand, in Persian, as the single identity.
+The platform is named after the business it serves: **Electricy Doroudi (الکتریکی درودی)**. Earlier working titles were considered and rejected during the naming review; the owner chose the business's own brand, in Persian, as the single identity.
 
 Customer-specific branding, labels, configuration, and operational settings belong in configuration rather than hard-coded business logic. Business behavior that is broadly useful to distributors should remain part of the shared product.
 
