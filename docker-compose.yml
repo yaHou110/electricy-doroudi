@@ -1,22 +1,22 @@
-name: droudian-platform
+name: tradeflow
 
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: droudian
+      POSTGRES_DB: tradeflow
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d droudian"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tradeflow"]
       interval: 5s
       timeout: 5s
       retries: 10
     volumes:
-      - droudian-postgres:/var/lib/postgresql/data
+      - tradeflow-postgres:/var/lib/postgresql/data
 
 volumes:
-  droudian-postgres:
+  tradeflow-postgres:

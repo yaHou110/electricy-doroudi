@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the architectural boundaries and major technical decisions for the Droudian business platform.
+This document defines the architectural boundaries and major technical decisions for the TradeFlow platform.
 
 ## Decision log
 
@@ -25,6 +25,8 @@ This document defines the architectural boundaries and major technical decisions
 | 015 | Single tenant for milestone 1 |
 | 016 | Persian-first interface |
 | 017 | Simple operational model for the first release |
+| 020 | Product named TradeFlow; Droodi is a customer, not the product identity |
+| 021 | Money serialized as lossless decimal strings; BigInt never crosses a JSON boundary |
 | 018 | Database migration deployment |
 
 Each decision below records its rationale and consequences. If the decision log grows unwieldy, records will be split into `docs/adr/` files — not before.

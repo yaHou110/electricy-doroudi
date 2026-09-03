@@ -10,7 +10,7 @@ async function main() {
   const warehouse = await prisma.warehouse.findFirst({ where: { isDefault: true } });
   if (!warehouse) throw new Error("default warehouse missing");
 
-  const actor = await prisma.user.findUnique({ where: { email: "manager@droudian.local" } });
+  const actor = await prisma.user.findUnique({ where: { email: "manager@droodi.local" } });
   if (!actor) throw new Error("seeded user missing");
 
   const previousReceipt = await prisma.goodsReceipt.findUnique({ where: { receiptNo: "SMOKE-1" } });

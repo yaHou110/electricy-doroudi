@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "درودیان | مدیریت پخش",
-  description: "مدیریت موجودی و فروش تجهیزات برق",
+  title: "TradeFlow | مدیریت کسب‌وکار",
+  description: "مدیریت موجودی، فروش و مشتریان",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
