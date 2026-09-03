@@ -1,13 +1,20 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { prisma, isForeignKeyConstraint, isUniqueConstraint } from "@/lib/db";
 import { productInputSchema } from "@/lib/validation";
 import { serializeForJson } from "@/lib/serialize";
-import { requireRole } from "@/lib/authz";
+import { authorize } from "@/lib/authz";
+import { errorResponse, readJson } from "@/lib/http";
 import type { Prisma } from "@prisma/client";
 
 export async function GET() {
-  const user = await requireRole(["MANAGER", "WAREHOUSE", "SALES"]);
-  if (!user) return NextResponse.json({ error: "ورود به سیستم الزامی است." }, { status: 401 });
+  const authorization = await authorize(["MANAGER", "WAREHOUSE", "SALES"]);
+  if (!authorization.ok) {
+    return errorResponse(
+      authorization.status,
+      authorization.status === 401 ? "UNAUTHENTICATED" : "FORBIDDEN",
+      authorization.status === 401 ? "ورود به سیستم الزامی است." : "دسترسی لازم را ندارید.",
+    );
+  }
 
   const products = await prisma.product.findMany({
     where: { isActive: true },
@@ -21,34 +28,57 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const user = await requireRole(["MANAGER"]);
-  if (!user) return NextResponse.json({ error: "دسترسی لازم برای ثبت کالا را ندارید." }, { status: 403 });
+  const authorization = await authorize(["MANAGER"]);
+  if (!authorization.ok) {
+    return errorResponse(
+      authorization.status,
+      authorization.status === 401 ? "UNAUTHENTICATED" : "FORBIDDEN",
+      authorization.status === 401 ? "ورود به سیستم الزامی است." : "دسترسی لازم برای ثبت کالا را ندارید.",
+    );
+  }
 
-  const parsed = productInputSchema.safeParse(await request.json());
+  const body = await readJson(request);
+  if (!body.ok) return errorResponse(400, "INVALID_JSON", "بدنه درخواست معتبر نیست.");
 
+  const parsed = productInputSchema.safeParse(body.data);
   if (!parsed.success) {
-    return NextResponse.json({ error: "اطلاعات کالا معتبر نیست.", details: parsed.error.flatten() }, { status: 400 });
+    return errorResponse(400, "VALIDATION_ERROR", "اطلاعات کالا معتبر نیست.", parsed.error.flatten());
   }
 
   const { brandId, categoryId, attributes, ...rest } = parsed.data;
-  const product = await prisma.product.create({
-    data: {
-      ...rest,
-      attributes: (attributes ?? undefined) as Prisma.InputJsonValue | undefined,
-      brandId: brandId ?? null,
-      categoryId: categoryId ?? undefined,
-    },
-  });
 
-  await prisma.productPriceHistory.create({
-    data: {
-      productId: product.id,
-      purchasePriceRial: product.costPriceRial,
-      salePriceRial: product.salePriceRial,
-      reason: "Initial product creation",
-      changedById: user.id,
-    },
-  });
+  try {
+    const product = await prisma.$transaction(async (transaction) => {
+      const createdProduct = await transaction.product.create({
+        data: {
+          ...rest,
+          attributes: (attributes ?? undefined) as Prisma.InputJsonValue | undefined,
+          brandId: brandId ?? null,
+          categoryId: categoryId ?? undefined,
+        },
+      });
 
-  return NextResponse.json(serializeForJson(product), { status: 201 });
+      await transaction.productPriceHistory.create({
+        data: {
+          productId: createdProduct.id,
+          purchasePriceRial: createdProduct.costPriceRial,
+          salePriceRial: createdProduct.salePriceRial,
+          reason: "Initial product creation",
+          changedById: authorization.user.id,
+        },
+      });
+
+      return createdProduct;
+    });
+
+    return NextResponse.json(serializeForJson(product), { status: 201 });
+  } catch (error) {
+    if (isUniqueConstraint(error)) {
+      return errorResponse(409, "PRODUCT_SKU_EXISTS", "کد کالا قبلاً ثبت شده است.");
+    }
+    if (isForeignKeyConstraint(error)) {
+      return errorResponse(400, "INVALID_REFERENCE", "برند یا دسته‌بندی معتبر نیست.");
+    }
+    return errorResponse(500, "PRODUCT_CREATE_FAILED", "ثبت کالا انجام نشد.");
+  }
 }

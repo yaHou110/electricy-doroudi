@@ -28,25 +28,29 @@ type Product = {
   stock: number;
   unit: string;
   reorderPoint: number;
-  salePriceRial: number;
+  salePriceRial: string;
 };
 
 type DialogName = "receipt" | "product" | null;
 
 type DashboardResponse = {
   products: Product[];
+  metrics?: {
+    salesToday?: string;
+  };
 };
 
 const demoProducts: Product[] = [
-  { id: "1", sku: "SCH-LC1D25", name: "کنتاکتور اشنایدر LC1D25", brand: "اشنایدر", category: "کنتاکتور", stock: 24, unit: "عدد", reorderPoint: 8, salePriceRial: 48500000 },
-  { id: "2", sku: "ABB-S201-C16", name: "کلید مینیاتوری ABB S201 C16", brand: "ABB", category: "کلید و فیوز", stock: 7, unit: "عدد", reorderPoint: 10, salePriceRial: 12900000 },
-  { id: "3", sku: "LS-MC-18A", name: "کنتاکتور LS MC-18a", brand: "LS", category: "کنتاکتور", stock: 41, unit: "عدد", reorderPoint: 12, salePriceRial: 18400000 },
-  { id: "4", sku: "KBL-2.5-100", name: "کابل افشان ۲.۵ مسی", brand: "خراسان", category: "کابل و سیم", stock: 0, unit: "حلقه", reorderPoint: 3, salePriceRial: 75000000 },
-  { id: "5", sku: "SCH-LC1D09", name: "کنتاکتور اشنایدر LC1D09", brand: "اشنایدر", category: "کنتاکتور", stock: 16, unit: "عدد", reorderPoint: 6, salePriceRial: 22800000 },
+  { id: "1", sku: "SCH-LC1D25", name: "کنتاکتور اشنایدر LC1D25", brand: "اشنایدر", category: "کنتاکتور", stock: 24, unit: "عدد", reorderPoint: 8, salePriceRial: "48500000" },
+  { id: "2", sku: "ABB-S201-C16", name: "کلید مینیاتوری ABB S201 C16", brand: "ABB", category: "کلید و فیوز", stock: 7, unit: "عدد", reorderPoint: 10, salePriceRial: "12900000" },
+  { id: "3", sku: "LS-MC-18A", name: "کنتاکتور LS MC-18a", brand: "LS", category: "کنتاکتور", stock: 41, unit: "عدد", reorderPoint: 12, salePriceRial: "18400000" },
+  { id: "4", sku: "KBL-2.5-100", name: "کابل افشان ۲.۵ مسی", brand: "خراسان", category: "کابل و سیم", stock: 0, unit: "حلقه", reorderPoint: 3, salePriceRial: "75000000" },
+  { id: "5", sku: "SCH-LC1D09", name: "کنتاکتور اشنایدر LC1D09", brand: "اشنایدر", category: "کنتاکتور", stock: 16, unit: "عدد", reorderPoint: 6, salePriceRial: "22800000" },
 ];
 
 const formatNumber = (value: number) => new Intl.NumberFormat("fa-IR").format(value);
-const formatMoney = (value: number) => `${formatNumber(Math.round(value / 10))} تومان`;
+// Money arrives as an exact decimal string (BigInt in the database); convert to Toman with BigInt math, not floats.
+const formatMoney = (value: string | number) => `${formatNumber(Number((BigInt(value) + 5n) / 10n))} تومان`;
 
 function stockStatus(product: Product) {
   if (product.stock === 0) return { label: "ناموجود", className: "out" };
@@ -56,6 +60,7 @@ function stockStatus(product: Product) {
 
 export default function Dashboard() {
   const [products, setProducts] = useState(demoProducts);
+  const [salesToday, setSalesToday] = useState<string | null>(null);
   const [modal, setModal] = useState<DialogName>(null);
   const [query, setQuery] = useState("");
 
@@ -64,7 +69,10 @@ export default function Dashboard() {
     fetch("/api/dashboard")
       .then((response) => response.ok ? response.json() as Promise<DashboardResponse> : null)
       .then((data) => {
-        if (active && data?.products?.length) setProducts(data.products);
+        if (active && data?.products?.length) {
+          setProducts(data.products);
+          if (data.metrics?.salesToday) setSalesToday(data.metrics.salesToday);
+        }
       })
       .catch(() => undefined);
 
@@ -94,8 +102,9 @@ export default function Dashboard() {
       sku: String(form.get("sku")),
       name: String(form.get("name")),
       unit: String(form.get("unit") || "عدد"),
-      costPriceRial: Number(form.get("costPriceRial") || 0),
-      salePriceRial: Number(form.get("salePriceRial") || 0),
+      // Send exact digit strings so large Rial amounts never pass through float conversion.
+      costPriceRial: String(form.get("costPriceRial") || "0").trim(),
+      salePriceRial: String(form.get("salePriceRial") || "0").trim(),
       reorderPoint: Number(form.get("reorderPoint") || 0),
     };
 
@@ -118,7 +127,7 @@ export default function Dashboard() {
     const quantity = Number(form.get("quantity"));
     const payload = {
       receiptNo: String(form.get("receiptNo")),
-      lines: [{ productId, quantity, unitCostRial: Number(form.get("unitCostRial") || 0) }],
+      lines: [{ productId, quantity, unitCostRial: String(form.get("unitCostRial") || "0").trim() }],
     };
 
     try {
@@ -178,8 +187,8 @@ export default function Dashboard() {
           {notice && <div className="alert-strip" role="status"><AlertTriangle size={16} /><span>{notice}</span><button className="close-button" onClick={() => setNotice(null)} aria-label="بستن"><X size={15} /></button></div>}
 
           <section className="metric-grid" aria-label="خلاصه عملکرد">
-            <MetricCard icon={<Boxes size={17} />} color="var(--teal-soft)" title="ارزش موجودی" value={formatMoney(products.reduce((sum, product) => sum + product.stock * product.salePriceRial, 0))} note="بر اساس قیمت فروش" />
-            <MetricCard icon={<ShoppingCart size={17} />} color="#e8eff8" title="فروش امروز" value="۱۲۸ میلیون" note="↑ ۱۸٪ نسبت به دیروز" />
+            <MetricCard icon={<Boxes size={17} />} color="var(--teal-soft)" title="ارزش موجودی" value={formatMoney(products.reduce((sum, product) => sum + BigInt(product.stock) * BigInt(product.salePriceRial), 0n).toString())} note="بر اساس قیمت فروش" />
+            <MetricCard icon={<ShoppingCart size={17} />} color="#e8eff8" title="فروش امروز" value={salesToday ? formatMoney(salesToday) : "۱۲۸ میلیون"} note={salesToday ? "مجموع فاکتورهای امروز" : "↑ ۱۸٪ نسبت به دیروز"} />
             <MetricCard icon={<PackagePlus size={17} />} color="var(--amber-soft)" title="کالاهای کم‌موجود" value={formatNumber(lowStock)} note="نیازمند بررسی" warning />
             <MetricCard icon={<ClipboardList size={17} />} color="#eee9f9" title="تعداد اقلام" value={formatNumber(totalStock)} note={`${formatNumber(products.length)} کالای فعال`} />
           </section>

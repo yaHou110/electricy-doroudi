@@ -13,16 +13,19 @@ async function main() {
   const actor = await prisma.user.findUnique({ where: { email: "manager@droudian.local" } });
   if (!actor) throw new Error("seeded user missing");
 
-  // Remove any previous smoke-run data so the script is rerunnable.
+  const previousReceipt = await prisma.goodsReceipt.findUnique({ where: { receiptNo: "SMOKE-1" } });
   await prisma.stockMovement.deleteMany({
-    where: { referenceType: "GoodsReceipt", referenceId: "SMOKE-1" },
+    where: {
+      referenceType: "GOODS_RECEIPT",
+      referenceId: { in: ["SMOKE-1", previousReceipt?.id ?? ""] },
+    },
   });
   await prisma.goodsReceipt.deleteMany({ where: { receiptNo: "SMOKE-1" } });
 
   // Transactional write path mirroring the receiving route shape.
-  await prisma.$transaction(
+  const receipt = await prisma.$transaction(
     async (tx) => {
-      await tx.goodsReceipt.create({
+      const createdReceipt = await tx.goodsReceipt.create({
         data: {
           receiptNo: "SMOKE-1",
           supplierId: null,
@@ -39,29 +42,32 @@ async function main() {
           type: "RECEIPT",
           quantity: 10,
           reason: "smoke test receipt",
-          referenceType: "GoodsReceipt",
-          referenceId: "SMOKE-1",
+          referenceType: "GOODS_RECEIPT",
+          referenceId: createdReceipt.id,
           actorId: actor.id,
         },
       });
+      return createdReceipt;
     },
     { isolationLevel: "Serializable" },
   );
 
-  const movements = await prisma.stockMovement.aggregate({
-    where: { productId: product.id, type: "RECEIPT" },
+  const smokeMovement = await prisma.stockMovement.aggregate({
+    where: { productId: product.id, referenceType: "GOODS_RECEIPT", referenceId: receipt.id },
     _sum: { quantity: true },
   });
 
-  const receipt = await prisma.goodsReceipt.findUnique({
-    where: { receiptNo: "SMOKE-1" },
+  const receiptWithLines = await prisma.goodsReceipt.findUnique({
+    where: { id: receipt.id },
     include: { lines: true },
   });
 
-  if (!receipt || movements._sum.quantity !== 10) throw new Error("stock round-trip failed");
+  if (!receiptWithLines || receiptWithLines.lines.length !== 1 || smokeMovement._sum.quantity !== 10) {
+    throw new Error("stock round-trip failed");
+  }
 
   console.log(
-    `SMOKE OK: product=${product.name} warehouse=${warehouse.name} actor=${actor.email} receiptLines=${receipt.lines.length} receiptQty=${movements._sum.quantity}`,
+    `SMOKE OK: product=${product.name} warehouse=${warehouse.name} actor=${actor.email} receiptLines=${receiptWithLines.lines.length} receiptQty=${smokeMovement._sum.quantity}`,
   );
 }
 
