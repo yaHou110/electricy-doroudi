@@ -1,0 +1,215 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  MANAGER
+  WAREHOUSE
+  SALES
+}
+
+enum StockMovementType {
+  RECEIPT
+  SALE
+  ADJUSTMENT_IN
+  ADJUSTMENT_OUT
+  RETURN_IN
+  RETURN_OUT
+}
+
+enum SaleStatus {
+  COMPLETED
+  VOIDED
+}
+
+enum CustomerType {
+  RETAILER
+  CONTRACTOR
+  COMPANY
+  OTHER
+}
+
+model User {
+  id           String               @id @default(uuid()) @db.Uuid
+  name         String
+  email        String               @unique
+  passwordHash String
+  role         UserRole             @default(SALES)
+  movements    StockMovement[]
+  sales        Sale[]
+  priceChanges ProductPriceHistory[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+}
+
+model Warehouse {
+  id        String          @id @default(uuid()) @db.Uuid
+  name      String          @unique
+  isDefault Boolean         @default(false)
+  movements StockMovement[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model Brand {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Category {
+  id        String    @id @default(uuid()) @db.Uuid
+  name      String
+  slug      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id            String                @id @default(uuid()) @db.Uuid
+  sku           String                @unique
+  name          String
+  description   String?
+  unit          String                @default("عدد")
+  attributes    Json?
+  costPriceRial BigInt                @default(0)
+  salePriceRial BigInt                @default(0)
+  reorderPoint  Int                   @default(0)
+  isActive      Boolean               @default(true)
+  brandId       String?               @db.Uuid
+  categoryId    String?               @db.Uuid
+  brand         Brand?                @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  category      Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  receiptLines  GoodsReceiptLine[]
+  saleLines     SaleLine[]
+  movements     StockMovement[]
+  priceHistory  ProductPriceHistory[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([name])
+  @@index([brandId])
+  @@index([categoryId])
+}
+
+model ProductPriceHistory {
+  id                String   @id @default(uuid()) @db.Uuid
+  productId         String   @db.Uuid
+  purchasePriceRial BigInt
+  salePriceRial     BigInt
+  reason            String?
+  changedById       String   @db.Uuid
+  changedAt         DateTime @default(now())
+  product           Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  changedBy         User     @relation(fields: [changedById], references: [id], onDelete: Restrict)
+
+  @@index([productId, changedAt])
+}
+
+model Supplier {
+  id        String         @id @default(uuid()) @db.Uuid
+  name      String
+  phone     String?
+  notes     String?
+  receipts  GoodsReceipt[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model Customer {
+  id               String       @id @default(uuid()) @db.Uuid
+  name             String
+  phone            String?
+  companyName      String?
+  type             CustomerType @default(RETAILER)
+  paymentTermsDays Int          @default(0)
+  creditLimitRial  BigInt       @default(0)
+  notes            String?
+  sales            Sale[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@index([name])
+}
+
+model GoodsReceipt {
+  id         String             @id @default(uuid()) @db.Uuid
+  receiptNo  String             @unique
+  supplierId String?            @db.Uuid
+  supplier   Supplier?          @relation(fields: [supplierId], references: [id], onDelete: SetNull)
+  receivedBy String             @db.Uuid
+  receivedAt DateTime           @default(now())
+  notes      String?
+  lines      GoodsReceiptLine[]
+  createdAt  DateTime           @default(now())
+
+  @@index([receivedAt])
+}
+
+model GoodsReceiptLine {
+  id           String       @id @default(uuid()) @db.Uuid
+  receiptId    String       @db.Uuid
+  productId    String       @db.Uuid
+  quantity     Int
+  unitCostRial BigInt
+  receipt      GoodsReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  product      Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+}
+
+model Sale {
+  id         String     @id @default(uuid()) @db.Uuid
+  saleNo     String     @unique
+  customerId String?    @db.Uuid
+  soldBy     String     @db.Uuid
+  status     SaleStatus @default(COMPLETED)
+  soldAt     DateTime   @default(now())
+  totalRial  BigInt     @default(0)
+  customer   Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  seller     User       @relation(fields: [soldBy], references: [id], onDelete: Restrict)
+  lines      SaleLine[]
+
+  @@index([soldAt])
+}
+
+model SaleLine {
+  id            String  @id @default(uuid()) @db.Uuid
+  saleId        String  @db.Uuid
+  productId     String  @db.Uuid
+  quantity      Int
+  unitPriceRial BigInt
+  sale          Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product       Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+}
+
+model StockMovement {
+  id            String            @id @default(uuid()) @db.Uuid
+  productId     String            @db.Uuid
+  warehouseId   String?           @db.Uuid
+  type          StockMovementType
+  quantity      Int
+  reason        String
+  referenceId   String?
+  referenceType String?
+  actorId       String            @db.Uuid
+  occurredAt    DateTime          @default(now())
+  product       Product           @relation(fields: [productId], references: [id], onDelete: Restrict)
+  warehouse     Warehouse?        @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  actor         User              @relation(fields: [actorId], references: [id], onDelete: Restrict)
+
+  @@index([productId, occurredAt])
+  @@index([warehouseId])
+  @@index([referenceType, referenceId])
+}
