@@ -145,8 +145,8 @@ export default function Dashboard() {
     <div className="app-shell">
       <aside className="sidebar">
         <div className="brand">
-          <div className="brand-mark">ت</div>
-          <div><strong>KasbFlow</strong><span>مدیریت هوشمند کسب‌وکار</span></div>
+          <div className="brand-mark">د</div>
+          <div><strong>الکتریکی درودی</strong><span>مدیریت فروش و انبار</span></div>
         </div>
         <div>
           <div className="nav-label">منوی اصلی</div>

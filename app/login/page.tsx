@@ -26,9 +26,9 @@ export default function LoginPage() {
   return (
     <main className="login-page">
       <section className="login-card">
-        <div className="brand-mark login-mark">ت</div>
+        <div className="brand-mark login-mark">د</div>
         <div className="eyebrow">مدیریت هوشمند پخش</div>
-        <h1>ورود به پنل KasbFlow</h1>
+        <h1>ورود به پنل الکتریکی درودی</h1>
         <p className="subtitle">برای ادامه، اطلاعات حساب کاربری خود را وارد کنید.</p>
         <form className="form" onSubmit={submit}>
           <div className="field"><label htmlFor="email">ایمیل</label><input id="email" name="email" type="email" required dir="ltr" autoComplete="username" placeholder="manager@doroudi.local" /></div>

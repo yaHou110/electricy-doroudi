@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "KasbFlow | مدیریت کسب‌وکار",
+  title: "الکتریکی درودی | مدیریت کسب‌وکار",
   description: "مدیریت موجودی، فروش و مشتریان",
 };
 

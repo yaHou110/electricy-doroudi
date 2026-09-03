@@ -1,4 +1,4 @@
-# KasbFlow
+# Electricy Doroudi
 
 Persian-first inventory and sales foundation for electrical distributors.
 

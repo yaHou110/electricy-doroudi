@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the architectural boundaries and major technical decisions for the KasbFlow platform.
+This document defines the architectural boundaries and major technical decisions for the Electricy Doroudi platform.
 
 ## Decision log
 
@@ -25,7 +25,7 @@ This document defines the architectural boundaries and major technical decisions
 | 015 | Single tenant for milestone 1 |
 | 016 | Persian-first interface |
 | 017 | Simple operational model for the first release |
-| 020 | Product named KasbFlow (کسب‌فلو) — verified free of software/trademark collisions (TradeFlow rejected: TRADEFLOW® is Expeditors' trade-management suite; Mojoud rejected: existing delivery app). Doroudi (درودی) is the customer, never the product identity |
+| 020 | Product named Electricy Doroudi (الکتریکی درودی) — the owner's brand for the customer's business; earlier generic names (Droudian Platform, TradeFlow, KasbFlow) were all rejected: TradeFlow collides with Expeditors' TRADEFLOW®, KasbFlow mixed languages, and customer-name-based names tied the product identity to one client. Customer references use Doroudi (درودی) only where the customer is actually meant |
 | 021 | Money serialized as lossless decimal strings; BigInt never crosses a JSON boundary |
 | 018 | Database migration deployment |
 

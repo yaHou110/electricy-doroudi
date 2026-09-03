@@ -1,6 +1,6 @@
-# KasbFlow
+# Electricy Doroudi
 
-KasbFlow is a Persian-first business management platform for distribution and retail businesses — inventory, purchasing/receiving, sales, customers, pricing, and staff operations in one modular system. Its initial focus is on the operational workflows that matter most to a distributor: receiving goods, maintaining reliable stock history, recording sales, managing customers and products, and giving staff and managers a clear operational dashboard.
+Electricy Doroudi (الکتریکی درودی) is a Persian-first business management platform for the Doroudi electrical business — inventory, purchasing/receiving, sales, customers, pricing, and staff operations in one modular system. Its initial focus is on the operational workflows that matter most to a distributor: receiving goods, maintaining reliable stock history, recording sales, managing customers and products, and giving staff and managers a clear operational dashboard.
 
 The first deployment is for **Doroudi (درودی)**, an electrical equipment distributor; the electrical domain shapes the seed data and initial taxonomy, but no business logic depends on it.
 
@@ -14,7 +14,7 @@ The platform is intentionally being developed as a modular business product rath
 
 ## Product direction
 
-KasbFlow is the product; **Doroudi is the first customer deployment**, not the product's identity. The same codebase should serve other distributors (auto parts, hardware, industrial supply) later.
+The platform is named after the business it serves: **Electricy Doroudi (الکتریکی درودی)**. Generic product naming experiments (Droudian Platform, TradeFlow, KasbFlow) were considered and rejected — the owner chose the business's own brand, in Persian, as the single identity.
 
 Customer-specific branding, labels, configuration, and operational settings belong in configuration rather than hard-coded business logic. Business behavior that is broadly useful to distributors should remain part of the shared product.
 
