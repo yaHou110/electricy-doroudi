@@ -20,7 +20,7 @@ Next.js 15 (App Router) · TypeScript (strict) · PostgreSQL · Prisma · Auth.j
 6. Seed development data with `npm run db:seed`.
 7. Start the app with `npm run dev` and open `http://localhost:3000`.
 
-The dashboard UI includes representative preview values while the database-backed reporting API is being configured. The login screen and product/receipt forms use the real Auth.js and Prisma paths and require PostgreSQL, a migrated schema, seeded user, and authenticated staff session before they work end to end.
+All data on the dashboard comes from the real database: staff login (Auth.js), products, customers, goods receiving, and transactional sales with stock validation are fully wired end to end. See `docs/DEPLOYMENT.md` for setup and `docs/API.md` for the API contract.
 
 ## Verification
 
@@ -42,4 +42,7 @@ npm run build
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How is the system structured, and why? |
 | [`docs/TECHNICAL_OVERVIEW.md`](docs/TECHNICAL_OVERVIEW.md) | Which technologies and conventions? |
 | [`docs/SECURITY.md`](docs/SECURITY.md) | Who can do what, and how is the system protected? |
+| [`docs/API.md`](docs/API.md) | What does the HTTP API accept, return, and guarantee? |
+| [`docs/TESTING.md`](docs/TESTING.md) | What is tested, and what must be tested when changed? |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | How is it run, backed up, updated, and rolled back? |
 | [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | How should this project be changed? |
