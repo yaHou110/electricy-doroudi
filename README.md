@@ -2,6 +2,14 @@
 
 Persian-first inventory and sales foundation for electrical distributors.
 
+## What it is
+
+A modular-monolith web application for receiving goods, maintaining an auditable stock ledger, recording sales, and giving staff an operational dashboard. Milestone 1 (inventory core) is implemented and verified: staff login with role-based access, products/brands/categories, customers, goods receiving, transactional sales with stock validation, and an immutable stock-movement ledger.
+
+## Stack
+
+Next.js 15 (App Router) · TypeScript (strict) · PostgreSQL · Prisma · Auth.js (credentials + JWT sessions) · Zod · Tailwind · Vitest · Docker Compose.
+
 ## Run locally
 
 1. Copy `.env.example` to `.env`.
@@ -23,4 +31,15 @@ npm test
 npm run build
 ```
 
-See `docs/` for scope, business rules, architecture, and roadmap.
+## Documentation
+
+| Document | Question it answers |
+| --- | --- |
+| [`docs/PROJECT_OVERVIEW.md`](docs/PROJECT_OVERVIEW.md) | What are we building, and for whom? |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | What is being built now, and what is deliberately not? |
+| [`docs/BUSINESS_RULES.md`](docs/BUSINESS_RULES.md) | What rules does the business enforce? |
+| [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) | What data exists, how is it related, what is immutable? |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | How is the system structured, and why? |
+| [`docs/TECHNICAL_OVERVIEW.md`](docs/TECHNICAL_OVERVIEW.md) | Which technologies and conventions? |
+| [`docs/SECURITY.md`](docs/SECURITY.md) | Who can do what, and how is the system protected? |
+| [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) | How should this project be changed? |
